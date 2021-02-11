@@ -90,9 +90,10 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   GPIO_PinState SwitchState[2]; //Now,Last
-  uint16_t LED1_half = 500 ;
+  uint16_t LED1_half = 250 ;
   uint32_t Timestamp = 0 ;
   uint32_t BottonTimeStamp = 0;
+  uint16_t on = 1;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -111,32 +112,59 @@ int main(void)
 		  if(SwitchState[1]== GPIO_PIN_SET && SwitchState[0]== GPIO_PIN_RESET)
 		  {
 			  //change half frequency LED1
-			  if (LED1_half == 500)
+			  if (LED1_half == 250)
+			  {
+				  LED1_half = 500;
+			  }
+			  else if (LED1_half == 500)
+			  {
+				  LED1_half = 1000;
+			  }
+			  else if (LED1_half == 1000)
+			  {
+				  LED1_half = 2000;
+			  }
+			  else if (LED1_half == 2000)
+			  {
+				  LED1_half = 3000;
+			  }
+			  else if (LED1_half == 3000)
 			  {
 				  LED1_half = 250;
 			  }
 			  else
 			  {
-				  LED1_half = 500;
+				  LED1_half = 250;
 			  }
 		  }
 		  SwitchState[1] = SwitchState[0] ;
 	  }
 
-
+//	  if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9) == GPIO_PIN_SET)
+//	  {
+//
+//	  }
 	  //Run LED
-	  if(HAL_GetTick() - Timestamp >= LED1_half)
+	  if (on = 1)
 	  {
-		  Timestamp = HAL_GetTick();
-		  if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9) == GPIO_PIN_SET)
+		 if(HAL_GetTick() - Timestamp >= LED1_half)
 		  {
-			  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9,GPIO_PIN_RESET);
+			  Timestamp = HAL_GetTick();
+			  if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9) == GPIO_PIN_SET)
+			  {
+				  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9,GPIO_PIN_RESET);
+			  }
+			  else
+			  {
+				  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9,GPIO_PIN_SET);
+			  }
 		  }
-		  else
-		  {
-			  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9,GPIO_PIN_SET);
-		  }
+		 if (on = 0)
+		 {
+			 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9,GPIO_PIN_SET);
+		 }
 	  }
+
 
   }
   /* USER CODE END 3 */
