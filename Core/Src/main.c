@@ -90,6 +90,8 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   GPIO_PinState SwitchState[2]; //Now,Last
+  GPIO_PinState S2[2];
+  GPIO_PinState S3[2];
   uint16_t LED1_half = 250 ;
   uint32_t Timestamp = 0 ;
   uint32_t BottonTimeStamp = 0;
@@ -109,6 +111,12 @@ int main(void)
 			  //Press is low
 		  //from high to low, switch is press
 		  SwitchState[0] = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_10);
+		  S2[0] = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3);
+		  S3[0] = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_5);
+		  if (S2[1]== GPIO_PIN_SET && S2[0]== GPIO_PIN_RESET)
+		  {
+			  on =! on;
+		  }
 		  if(SwitchState[1]== GPIO_PIN_SET && SwitchState[0]== GPIO_PIN_RESET)
 		  {
 			  //change half frequency LED1
@@ -138,6 +146,7 @@ int main(void)
 			  }
 		  }
 		  SwitchState[1] = SwitchState[0] ;
+		  S2[1] = S2[0];
 	  }
 
 //	  if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9) == GPIO_PIN_SET)
@@ -145,7 +154,7 @@ int main(void)
 //
 //	  }
 	  //Run LED
-	  if (on = 1)
+	  if (on == 1)
 	  {
 		 if(HAL_GetTick() - Timestamp >= LED1_half)
 		  {
@@ -159,9 +168,9 @@ int main(void)
 				  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9,GPIO_PIN_SET);
 			  }
 		  }
-		 if (on = 0)
+		 if (on == 0)
 		 {
-			 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9,GPIO_PIN_SET);
+			 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9,GPIO_PIN_RESET);
 		 }
 	  }
 
@@ -283,6 +292,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PB3 PB5 */
+  GPIO_InitStruct.Pin = GPIO_PIN_3|GPIO_PIN_5;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 }
 
