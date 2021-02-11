@@ -96,6 +96,7 @@ int main(void)
   uint32_t Timestamp = 0 ;
   uint32_t BottonTimeStamp = 0;
   uint16_t on = 1;
+  uint16_t Savagemode = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -113,11 +114,23 @@ int main(void)
 		  SwitchState[0] = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_10);
 		  S2[0] = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3);
 		  S3[0] = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_5);
+		  if (S3[1]== GPIO_PIN_SET && S3[0]== GPIO_PIN_RESET)
+		  {
+			  Savagemode =! 1;
+		  }
+		  if(Savagemode == 1)
+		  {
+			  LED1_half = 500;
+			  if (LED1_half == 250)
+			  {
+
+			  }
+		  }
 		  if (S2[1]== GPIO_PIN_SET && S2[0]== GPIO_PIN_RESET)
 		  {
 			  on =! on;
 		  }
-		  if(SwitchState[1]== GPIO_PIN_SET && SwitchState[0]== GPIO_PIN_RESET)
+		  if(SwitchState[1]== GPIO_PIN_SET && SwitchState[0]== GPIO_PIN_RESET && on == 1)
 		  {
 			  //change half frequency LED1
 			  if (LED1_half == 250)
@@ -130,13 +143,9 @@ int main(void)
 			  }
 			  else if (LED1_half == 1000)
 			  {
-				  LED1_half = 2000;
+				  LED1_half = 1500;
 			  }
-			  else if (LED1_half == 2000)
-			  {
-				  LED1_half = 3000;
-			  }
-			  else if (LED1_half == 3000)
+			  else if (LED1_half == 1500)
 			  {
 				  LED1_half = 250;
 			  }
@@ -147,6 +156,7 @@ int main(void)
 		  }
 		  SwitchState[1] = SwitchState[0] ;
 		  S2[1] = S2[0];
+		  S3[1] = S3[0];
 	  }
 
 //	  if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9) == GPIO_PIN_SET)
@@ -157,7 +167,7 @@ int main(void)
 	  if (on == 1)
 	  {
 		 if(HAL_GetTick() - Timestamp >= LED1_half)
-		  {
+		 {
 			  Timestamp = HAL_GetTick();
 			  if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9) == GPIO_PIN_SET)
 			  {
