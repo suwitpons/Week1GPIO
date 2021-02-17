@@ -92,10 +92,11 @@ int main(void)
   GPIO_PinState SwitchState[2]; //Now,Last
   GPIO_PinState S2[2];
   GPIO_PinState S3[2];
-  uint16_t LED1_half = 250 ;
+  uint16_t LED1_half = 1000 ;
   uint32_t Timestamp = 0 ;
+  uint32_t Timestamp2 = 0;
   uint32_t BottonTimeStamp = 0;
-  uint16_t on = 1;
+  uint32_t on = 1;
   uint16_t Savagemode = 0;
   /* USER CODE END 2 */
 
@@ -116,42 +117,46 @@ int main(void)
 		  S3[0] = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_5);
 		  if (S3[1]== GPIO_PIN_SET && S3[0]== GPIO_PIN_RESET)
 		  {
-			  Savagemode =! 1;
-		  }
-		  if(Savagemode == 1)
-		  {
-			  LED1_half = 500;
-			  if (LED1_half == 250)
-			  {
-
-			  }
+			  if(Savagemode == 1)
+				  {
+					  Savagemode = 0 ;
+				  }
+				  else
+				  {
+					  Savagemode = 1 ;
+				  }
 		  }
 		  if (S2[1]== GPIO_PIN_SET && S2[0]== GPIO_PIN_RESET)
 		  {
-			  on =! on;
+			  if(on == 1)
+			  {
+				  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_7,0);
+				  on = 0;
+			  }
+			  else
+			  {
+				  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_7,1);
+				  on = 1;
+			  }
 		  }
-		  if(SwitchState[1]== GPIO_PIN_SET && SwitchState[0]== GPIO_PIN_RESET && on == 1)
+		  if(SwitchState[1]== GPIO_PIN_SET && SwitchState[0]== GPIO_PIN_RESET)
 		  {
 			  //change half frequency LED1
-			  if (LED1_half == 250)
+			  if (LED1_half == 1000)
 			  {
 				  LED1_half = 500;
 			  }
 			  else if (LED1_half == 500)
 			  {
-				  LED1_half = 1000;
-			  }
-			  else if (LED1_half == 1000)
-			  {
-				  LED1_half = 1500;
-			  }
-			  else if (LED1_half == 1500)
-			  {
 				  LED1_half = 250;
+			  }
+			  else if (LED1_half == 250)
+			  {
+				  LED1_half = 1000/6;
 			  }
 			  else
 			  {
-				  LED1_half = 250;
+				  LED1_half = 1000;
 			  }
 		  }
 		  SwitchState[1] = SwitchState[0] ;
@@ -164,25 +169,59 @@ int main(void)
 //
 //	  }
 	  //Run LED
-	  if (on == 1)
+	  if(Savagemode == 0)
 	  {
-		 if(HAL_GetTick() - Timestamp >= LED1_half)
-		 {
-			  Timestamp = HAL_GetTick();
-			  if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9) == GPIO_PIN_SET)
-			  {
-				  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9,GPIO_PIN_RESET);
+		  if(HAL_GetTick() - Timestamp2 >= 500)
+			 {
+			  	  if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6) == 0)
+				  {
+					  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6,1);
+					  Timestamp2 = HAL_GetTick();
+				  }
 			  }
-			  else
-			  {
-				  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9,GPIO_PIN_SET);
-			  }
-		  }
-		 if (on == 0)
-		 {
-			 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9,GPIO_PIN_RESET);
-		 }
+		  if(HAL_GetTick() - Timestamp2 >= 1500)
+				 {
+					  if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6) == 1)
+						  {
+							  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6,0);
+							  Timestamp2 = HAL_GetTick();
+						  }
+				  }
 	  }
+	  if(Savagemode == 1)
+	  {
+		  if(HAL_GetTick() - Timestamp2 >= 1500)
+			 {
+				  if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6) == 0)
+				  {
+					  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6,1);
+					  Timestamp2 = HAL_GetTick();
+				  }
+
+			  }
+		  if(HAL_GetTick() - Timestamp2 >= 500)
+				 {
+					  if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6) == 1)
+						  {
+							  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6,0);
+							  Timestamp2 = HAL_GetTick();
+						  }
+
+				  }
+	  }
+	 if(HAL_GetTick() - Timestamp >= LED1_half)
+	 {
+		  Timestamp = HAL_GetTick();
+		  if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9) == GPIO_PIN_SET)
+		  {
+			  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9,GPIO_PIN_RESET);
+		  }
+		  else
+		  {
+			  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9,GPIO_PIN_SET);
+		  }
+	  }
+
 
 
   }
@@ -284,6 +323,12 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, LD2_Pin|GPIO_PIN_9, GPIO_PIN_RESET);
 
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_7, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);
+
   /*Configure GPIO pin : B1_Pin */
   GPIO_InitStruct.Pin = B1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
@@ -297,6 +342,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : PC7 */
+  GPIO_InitStruct.Pin = GPIO_PIN_7;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
   /*Configure GPIO pin : PA10 */
   GPIO_InitStruct.Pin = GPIO_PIN_10;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
@@ -307,6 +359,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pin = GPIO_PIN_3|GPIO_PIN_5;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PB6 */
+  GPIO_InitStruct.Pin = GPIO_PIN_6;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 }
